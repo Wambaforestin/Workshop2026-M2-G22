@@ -1,0 +1,42 @@
+groups:
+  - name: resilience-alpha
+    rules:
+      # Le service métier ne répond plus (base down ou API saturée).
+      - alert: PaymentServiceDown
+        expr: payment_db_up == 0 or up{job="payment-api"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service de paiement indisponible"
+          description: "La base est injoignable ou l'API ne scrape plus."
+
+      # Taux d'erreur anormal : signe d'une attaque applicative ou d'une panne.
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(payment_requests_total{status=~"5.."}[1m]))
+          /
+          clamp_min(sum(rate(payment_requests_total[1m])), 1) > 0.2
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreur 5xx élevé (>20%)"
+
+      # Pic de latence : saturation (DoS applicatif) ou contention base.
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(payment_request_latency_seconds_bucket[1m])) by (le)) > 1
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence p95 > 1s sur l'API de paiement"
+
+      # Débit de requêtes anormalement haut : candidat déni de service.
+      - alert: TrafficSpike
+        expr: sum(rate(payment_requests_total[30s])) > 50
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pic de trafic (> 50 req/s) — possible DoS"

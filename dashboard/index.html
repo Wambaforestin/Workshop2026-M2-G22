@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resilience-Alpha — Supervision</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100">
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect } = React;
+
+    // Endpoints (ports publiés en démo locale). Adaptables via window.CFG.
+    const CFG = window.CFG || {
+      payment: "http://localhost:8080/api",
+      ml: "http://localhost:8200",
+      remediation: "http://localhost:8300",
+      rag: "http://localhost:8400",
+    };
+
+    async function j(url, opts) {
+      const r = await fetch(url, opts);
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }
+
+    function Badge({ ok, label }) {
+      const cls = ok ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                     : "bg-red-500/20 text-red-300 border-red-500/40";
+      return <span className={"px-2 py-1 rounded border text-xs font-semibold " + cls}>{label}</span>;
+    }
+
+    function Card({ title, children, right }) {
+      return (
+        <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-slate-200">{title}</h2>
+            {right}
+          </div>
+          {children}
+        </div>
+      );
+    }
+
+    function Services() {
+      const [health, setHealth] = useState({});
+      useEffect(() => {
+        const tick = async () => {
+          const next = {};
+          for (const [k, base] of Object.entries({
+            "Paiement": CFG.payment + "/health/deep",
+            "Détection ML": CFG.ml + "/health",
+            "Remédiation": CFG.remediation + "/health",
+            "Assistant RAG": CFG.rag + "/health",
+          })) {
+            try { await j(base); next[k] = true; } catch { next[k] = false; }
+          }
+          setHealth(next);
+        };
+        tick(); const id = setInterval(tick, 3000); return () => clearInterval(id);
+      }, []);
+      return (
+        <Card title="État des services">
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(health).map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between bg-slate-900/50 rounded px-3 py-2">
+                <span className="text-sm">{k}</span><Badge ok={v} label={v ? "UP" : "DOWN"} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      );
+    }
+
+    function Detection() {
+      const [state, setState] = useState(null);
+      useEffect(() => {
+        const tick = async () => { try { setState(await j(CFG.ml + "/state")); } catch {} };
+        tick(); const id = setInterval(tick, 2000); return () => clearInterval(id);
+      }, []);
+      const last = state && state.last;
+      return (
+        <Card title="Détection d'anomalies (ML)"
+              right={last && <Badge ok={!last.anomaly} label={last.anomaly ? "ANOMALIE" : "NORMAL"} />}>
+          {!last ? <p className="text-slate-400 text-sm">En attente de données…</p> : (
+            <div className="space-y-2 text-sm">
+              <p className="text-slate-300">{last.explanation}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(last.features || {}).map(([k, v]) => (
+                  <div key={k} className="bg-slate-900/50 rounded px-2 py-1 flex justify-between">
+                    <span className="text-slate-400">{k}</span>
+                    <span className="font-mono">{Number(v).toFixed(3)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500">Score : {last.score} · Driver principal : {last.main_driver}</p>
+            </div>
+          )}
+        </Card>
+      );
+    }
+
+    function Remediation() {
+      const [data, setData] = useState({ events: [] });
+      useEffect(() => {
+        const tick = async () => { try { setData(await j(CFG.remediation + "/events")); } catch {} };
+        tick(); const id = setInterval(tick, 2000); return () => clearInterval(id);
+      }, []);
+      const active = data.current && data.current.active;
+      return (
+        <Card title="Remédiation autonome"
+              right={<Badge ok={!active} label={active ? "REPRISE EN COURS" : "STABLE"} />}>
+          <div className="space-y-1 max-h-64 overflow-y-auto text-xs font-mono">
+            {(data.events || []).slice(0, 25).map((e, i) => (
+              <div key={i} className="flex gap-2">
+                <span className="text-slate-500">{new Date(e.ts * 1000).toLocaleTimeString()}</span>
+                <span className="text-indigo-300">{e.kind}</span>
+                <span className="text-slate-400 truncate">{JSON.stringify(e.detail)}</span>
+              </div>
+            ))}
+            {(!data.events || !data.events.length) && <p className="text-slate-500">Aucun événement.</p>}
+          </div>
+        </Card>
+      );
+    }
+
+    function Assistant() {
+      const [q, setQ] = useState("Que faire si le service de paiement est indisponible ?");
+      const [a, setA] = useState(null);
+      const [loading, setLoading] = useState(false);
+      const ask = async () => {
+        setLoading(true); setA(null);
+        try { setA(await j(CFG.rag + "/ask", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: q }),
+        })); } catch (e) { setA({ answer: "Erreur: " + e.message, sources: [] }); }
+        setLoading(false);
+      };
+      return (
+        <Card title="Assistant opérateur (RAG)">
+          <div className="flex gap-2 mb-2">
+            <input value={q} onChange={e => setQ(e.target.value)}
+                   className="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm" />
+            <button onClick={ask} className="bg-indigo-600 hover:bg-indigo-700 px-3 rounded text-sm font-semibold">
+              {loading ? "…" : "Demander"}
+            </button>
+          </div>
+          {a && (
+            <div className="bg-slate-900/50 rounded p-3 text-sm">
+              <p className="whitespace-pre-wrap text-slate-200">{a.answer}</p>
+              {a.sources && a.sources.length > 0 &&
+                <p className="text-xs text-slate-500 mt-2">Sources : {a.sources.join(", ")}</p>}
+            </div>
+          )}
+        </Card>
+      );
+    }
+
+    function App() {
+      return (
+        <div className="max-w-6xl mx-auto p-6">
+          <header className="mb-6">
+            <h1 className="text-2xl font-bold">Project Resilience-Alpha</h1>
+            <p className="text-slate-400 text-sm">Supervision de la cyber-résilience — détection, remédiation autonome et reprise</p>
+          </header>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Services /><Detection /><Remediation /><Assistant />
+          </div>
+          <footer className="mt-6 text-xs text-slate-600">
+            Démonstrateur pédagogique EPSI/myDiL · données fictives · Grafana : http://localhost:3000
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

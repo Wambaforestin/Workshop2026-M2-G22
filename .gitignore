@@ -1,0 +1,18 @@
+# Secrets déchiffrés — JAMAIS versionnés (cf. security/secrets.md)
+security/secrets.env
+.env
+*.key
+keys.txt
+
+# Modèles Ollama (volumineux)
+rag-assistant/ollama_models/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# OS
+.DS_Store
+Workshop2026-M2-G01-Dossier.pdf

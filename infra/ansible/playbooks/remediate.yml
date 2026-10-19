@@ -1,0 +1,34 @@
+---
+# Opérations de reprise. Appelé par le moteur de remédiation OU manuellement.
+# Chaque action est idempotente et journalisée.
+#
+#   action=restart_service service=<nom>   -> redémarre un conteneur
+#   action=restart_db                       -> redémarre la base de données
+#   action=isolate service=<nom>            -> coupe le conteneur du réseau (confinement)
+- name: Opérations de remédiation
+  hosts: host
+  gather_facts: false
+  vars:
+    action: noop
+    service: payment-api
+  tasks:
+    - name: Redémarrer un service
+      when: action == "restart_service"
+      ansible.builtin.command: "docker compose restart {{ service }}"
+      args:
+        chdir: "{{ playbook_dir }}/../../.."
+
+    - name: Redémarrer la base
+      when: action == "restart_db"
+      ansible.builtin.command: "docker compose restart db"
+      args:
+        chdir: "{{ playbook_dir }}/../../.."
+
+    - name: Isoler un conteneur compromis (confinement)
+      when: action == "isolate"
+      ansible.builtin.command: "docker network disconnect resilience_net {{ service }}"
+      failed_when: false
+
+    - name: Journaliser l'action
+      ansible.builtin.debug:
+        msg: "Remédiation exécutée: action={{ action }} service={{ service }}"
