@@ -13,6 +13,7 @@ import time
 
 import jwt
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 from pydantic import BaseModel
 from starlette.responses import Response
@@ -39,6 +40,10 @@ USERS = {
 LOGINS = Counter("auth_logins_total", "Tentatives de login", ["result"])
 
 app = FastAPI(title="Resilience-Alpha — Auth", version="1.0.0")
+# CORS : la vitrine (servie sur un autre port) doit pouvoir appeler /login.
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
 
 
 class LoginReq(BaseModel):

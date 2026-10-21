@@ -48,6 +48,9 @@ services:
       DATABASE_URL: postgresql+psycopg2://payment:${POSTGRES_PASSWORD:-payment}@db:5432/payment
       AUTH_URL: http://auth:8100
     networks: [resilience_net]
+    # Publié en local pour que le dashboard interroge sa santé en direct (CORS).
+    # L'attaque Red Team, elle, continue de passer par le WAF (port 8090).
+    ports: ["127.0.0.1:18000:8000"]
     depends_on:
       db:
         condition: service_healthy
