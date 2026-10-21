@@ -18,7 +18,7 @@
 
     - name: Attendre que l'API métier soit saine
       ansible.builtin.uri:
-        url: http://localhost:8080/api/health
+        url: http://localhost:8090/api/health
         status_code: 200
       register: api_health
       retries: 30
@@ -27,4 +27,4 @@
 
     - name: Résumé
       ansible.builtin.debug:
-        msg: "Plateforme déployée. Dashboard: http://localhost:3000 | Vitrine: http://localhost:8080"
+        msg: "Plateforme déployée. Dashboard: http://localhost:3000 | Vitrine: http://localhost:8090"

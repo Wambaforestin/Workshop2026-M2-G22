@@ -13,7 +13,7 @@ import sys
 from urllib.parse import urlparse
 
 # Cibles explicitement autorisées pour la démo locale.
-DEFAULT_TARGET = "http://localhost:8080"
+DEFAULT_TARGET = "http://localhost:8090"
 
 
 def _is_private_host(host: str) -> bool:

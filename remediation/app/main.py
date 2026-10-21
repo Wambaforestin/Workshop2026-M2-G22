@@ -20,6 +20,7 @@ from collections import deque
 
 import httpx
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, generate_latest
 from pydantic import BaseModel
 from starlette.responses import Response
@@ -72,6 +73,10 @@ class Incident(BaseModel):
 
 
 app = FastAPI(title="Resilience-Alpha — Remediation")
+# CORS : le dashboard (autre origine) doit pouvoir lire /events et /health.
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
 
 
 @app.get("/health")

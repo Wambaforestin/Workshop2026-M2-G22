@@ -16,6 +16,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, generate_latest
 from starlette.responses import Response
 
@@ -120,6 +121,10 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Resilience-Alpha — ML Detection", lifespan=lifespan)
+# CORS : le dashboard (autre origine) doit pouvoir lire /state et /health.
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
 
 
 @app.get("/health")

@@ -10,7 +10,7 @@ docker compose up -d --build
 ```
 
 ## 1. État sain (≈ 30 s)
-- Ouvrir la **vitrine** (http://localhost:8080). Le bandeau affiche
+- Ouvrir la **vitrine** (http://localhost:8090). Le bandeau affiche
   « service disponible ».
 - Cliquer **Payer** : une transaction fictive aboutit (`status: settled`).
 - Sur le **dashboard** : tous les services UP, détection « NORMAL ».

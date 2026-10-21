@@ -5,6 +5,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .rag import RagIndex, generate
@@ -23,6 +24,10 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Resilience-Alpha — Assistant RAG", lifespan=lifespan)
+# CORS : le dashboard (autre origine) doit pouvoir interroger /ask et /health.
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
 
 
 class Ask(BaseModel):

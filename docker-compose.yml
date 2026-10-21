@@ -61,7 +61,7 @@ services:
   waf:
     build: ./infra/waf
     networks: [resilience_net]
-    ports: ["8080:80"]     # vitrine + /api + /auth passent par ici
+    ports: ["8090:80"]     # vitrine + /api + /auth passent par ici
     depends_on: [payment-api, auth, storefront]
 
   # ---------- Observabilité ----------

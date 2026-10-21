@@ -38,7 +38,7 @@
   <script>
     // L'URL de l'API passe par le WAF (reverse-proxy) en production ; en démo
     // locale on cible le port publié de l'API.
-    const API = window.PAYMENT_API || "http://localhost:8080";
+    const API = window.PAYMENT_API || "http://localhost:8090/api";
     const AUTH = window.AUTH_API || "http://localhost:8100";
 
     async function refreshStatus() {

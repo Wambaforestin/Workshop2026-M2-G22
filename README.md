@@ -60,7 +60,7 @@ docker exec -it resilience-alpha-ollama-1 ollama pull llama3.2:3b
 
 | Service | URL |
 |---|---|
-| Vitrine de paiement | http://localhost:8080 |
+| Vitrine de paiement | http://localhost:8090 |
 | Dashboard de supervision | http://localhost:3001 |
 | Grafana | http://localhost:3000 (admin / `admin-demo`) |
 | Prometheus | http://localhost:9090 |

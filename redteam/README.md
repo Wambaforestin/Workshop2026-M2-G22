@@ -37,7 +37,7 @@ l'API (requêtes paramétrées) ne doit de toute façon pas être affectée. La 
 
 ## Garde-fous intégrés
 
-- Cible par défaut `http://localhost:8080` (votre labo). Toute autre cible doit
+- Cible par défaut `http://localhost:8090` (votre labo). Toute autre cible doit
   être passée en argument **et** confirmée par `--jaccepte-labo`.
 - Les hôtes publics/non privés sont **refusés** par le script.
 - Débit et durée plafonnés en dur.

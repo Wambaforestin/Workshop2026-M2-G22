@@ -4,7 +4,7 @@ Mesures défensives appliquées, en réponse au pilier Cybersécurité (§3.4).
 
 ## 1. Surface d'exposition minimale
 
-- **Seul le WAF est exposé** sur le réseau pédagogique (port 80/8080). Base,
+- **Seul le WAF est exposé** sur le réseau pédagogique (port 80/8090). Base,
   secrets, Prometheus, Loki, Vault et interfaces de gestion restent sur le
   réseau interne Docker `resilience_net`, non publié (exigence §4).
 - Grafana et Prometheus ne sont publiés qu'en local (bind `127.0.0.1`) pour la
