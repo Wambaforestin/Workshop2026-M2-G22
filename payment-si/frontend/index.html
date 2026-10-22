@@ -1,95 +1,210 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Boutique Fictive — Paiement</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boutique Fictive — Paiement sécurisé</title>
+<style>
+  :root{
+    --indigo:#4f46e5; --indigo-d:#4338ca; --violet:#7c3aed;
+    --ink:#1e293b; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9;
+    --green:#059669; --green-bg:#ecfdf5; --amber:#b45309; --amber-bg:#fffbeb;
+    --rose:#e11d48; --rose-bg:#fff1f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  a{color:var(--indigo);text-decoration:none} a:hover{text-decoration:underline}
+  .header{background:linear-gradient(90deg,var(--indigo-d),var(--violet));color:#fff}
+  .header-in{max-width:960px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{height:40px;width:40px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+  .brand-name{font-weight:700;line-height:1.1}
+  .brand-sub{font-size:12px;color:#c7d2fe}
+  .pill{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.18)}
+  .pill.ok{background:#34d399;color:#064e3b} .pill.ko{background:#fb7185;color:#4c0519}
+  main{max-width:960px;margin:0 auto;padding:28px 24px}
+  .banner{margin-bottom:22px;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:500;background:#e2e8f0;color:#475569;border:1px solid transparent}
+  .banner.ok{background:var(--green-bg);color:#065f46;border-color:#a7f3d0}
+  .banner.ko{background:var(--rose-bg);color:#9f1239;border-color:#fecdd3}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  h2.sec{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06);padding:20px}
+  .acct{display:flex;align-items:center;justify-content:space-between}
+  .acct .lbl{font-size:12px;color:#94a3b8}
+  .acct .nm{font-weight:600}
+  .acct .id{font-size:12px;color:#94a3b8;font-family:ui-monospace,Consolas,monospace}
+  .av{height:36px;width:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .av.a{background:#e0e7ff;color:#4338ca} .av.m{background:#d1fae5;color:#047857}
+  .bal{margin-top:12px;font-size:26px;font-weight:700}
+  .bal small{font-size:15px;font-weight:500;color:#94a3b8}
+  .arrow{display:flex;justify-content:center;margin:-6px 0}
+  .arrow span{height:32px;width:32px;border-radius:999px;background:#ede9fe;color:#6d28d9;display:flex;align-items:center;justify-content:center;font-size:18px}
+  label.l{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .inwrap{position:relative}
+  input#amount{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 32px 12px 16px;font-size:18px;font-weight:600;outline:none}
+  input#amount:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.2)}
+  .eur{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#94a3b8}
+  .quick-row{display:flex;gap:8px;margin-top:12px}
+  .quick{flex:1;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;cursor:pointer}
+  .quick:hover{background:#f8fafc}
+  .pay{margin-top:16px;width:100%;background:var(--indigo);color:#fff;font-weight:600;font-size:15px;border:none;padding:13px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .pay:hover{background:var(--indigo-d)} .pay:disabled{opacity:.6;cursor:default}
+  .result{margin-top:16px;border-radius:12px;border:1px solid;padding:12px 16px;font-size:14px;animation:fade .3s ease both}
+  .result.success{background:var(--green-bg);border-color:#a7f3d0;color:#065f46}
+  .result.warn{background:var(--amber-bg);border-color:#fde68a;color:#92400e}
+  .result.error{background:var(--rose-bg);border-color:#fecdd3;color:#9f1239}
+  .result .rt{font-weight:700;display:flex;align-items:center;gap:8px}
+  .result .rd{margin-top:4px;font-size:12px;opacity:.9}
+  .note{font-size:12px;color:#94a3b8;margin-top:16px;line-height:1.5}
+  .hist{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06);overflow:hidden}
+  .hrow{padding:13px 20px;display:flex;align-items:center;justify-content:space-between;font-size:14px;border-top:1px solid #f1f5f9}
+  .hrow:first-child{border-top:none}
+  .htime{font-size:12px;color:#94a3b8;margin-left:6px}
+  .badge{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:#d1fae5;color:#047857}
+  .empty{padding:16px 20px;font-size:14px;color:#94a3b8}
+  footer{margin-top:28px;font-size:12px;color:#94a3b8;display:flex;flex-wrap:wrap;gap:4px 16px}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .ic{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
 </head>
-<body class="bg-slate-100 min-h-screen">
-  <div class="max-w-xl mx-auto p-6">
-    <header class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-800">Boutique Fictive SAS</h1>
-      <p class="text-slate-500 text-sm">Démonstrateur Resilience-Alpha — paiement simulé (aucune donnée réelle)</p>
-    </header>
+<body>
+  <header class="header">
+    <div class="header-in">
+      <div class="brand">
+        <div class="logo"><svg width="22" height="22" class="ic" stroke="#fff"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <div>
+          <div class="brand-name">Boutique Fictive SAS</div>
+          <div class="brand-sub">Paiement sécurisé · démonstrateur Resilience-Alpha</div>
+        </div>
+      </div>
+      <div id="statusPill" class="pill">vérification…</div>
+    </div>
+  </header>
 
-    <div id="status" class="mb-4 text-sm px-3 py-2 rounded bg-slate-200 text-slate-700">
-      État du service : vérification…
+  <main>
+    <div id="banner" class="banner">État du service : vérification en cours…</div>
+
+    <div class="grid">
+      <section>
+        <h2 class="sec">Comptes</h2>
+        <div class="card">
+          <div class="acct">
+            <div><div class="lbl">Votre compte</div><div class="nm">Client Démo A</div><div class="id">acc-client-001</div></div>
+            <div class="av a">A</div>
+          </div>
+          <div class="bal"><span id="clientBal">—</span> <small>€</small></div>
+        </div>
+        <div class="arrow"><span>↓</span></div>
+        <div class="card">
+          <div class="acct">
+            <div><div class="lbl">Bénéficiaire (marchand)</div><div class="nm">Boutique Fictive SAS</div><div class="id">acc-merchant-001</div></div>
+            <div class="av m">M</div>
+          </div>
+          <div class="bal"><span id="merchantBal">—</span> <small>€</small></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="sec">Nouveau paiement</h2>
+        <div class="card">
+          <label class="l">Montant (EUR fictifs)</label>
+          <div class="inwrap">
+            <input id="amount" type="number" value="42.00" step="0.01" min="0.01" />
+            <span class="eur">€</span>
+          </div>
+          <div class="quick-row">
+            <button class="quick" data-amt="19.99">19,99</button>
+            <button class="quick" data-amt="42.00">42,00</button>
+            <button class="quick" data-amt="150.00">150,00</button>
+          </div>
+          <button id="pay" class="pay">
+            <svg width="16" height="16" class="ic" stroke="#fff"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span id="payLabel">Payer le marchand</span>
+          </button>
+          <div id="result" class="result" style="display:none"></div>
+        </div>
+        <p class="note">🔒 Transaction acheminée via le WAF · <b>aucune donnée bancaire réelle</b>.<br>Flux : vitrine → WAF → API → base.</p>
+      </section>
     </div>
 
-    <section class="bg-white rounded-xl shadow p-5 space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Montant (EUR fictifs)</label>
-        <input id="amount" type="number" value="42.00" step="0.01"
-               class="w-full border rounded px-3 py-2" />
-      </div>
-      <button id="pay"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded">
-        Payer le marchand
-      </button>
-      <pre id="result" class="text-xs bg-slate-900 text-emerald-300 rounded p-3 overflow-x-auto min-h-[3rem]"></pre>
+    <section style="margin-top:32px">
+      <h2 class="sec">Dernières transactions</h2>
+      <div id="history" class="hist"><div class="empty">Aucune transaction pour l'instant.</div></div>
     </section>
 
-    <p class="text-xs text-slate-400 mt-4">
-      Comptes de démo : client <code>acc-client-001</code> → marchand <code>acc-merchant-001</code>.
-    </p>
-  </div>
+    <footer>
+      <span>Démonstrateur pédagogique EPSI/myDiL</span><span>·</span>
+      <a href="http://localhost:3001">Dashboard de supervision</a><span>·</span>
+      <a href="http://localhost:3000">Grafana</a>
+    </footer>
+  </main>
 
-  <script>
-    // L'URL de l'API passe par le WAF (reverse-proxy) en production ; en démo
-    // locale on cible le port publié de l'API.
-    const API = window.PAYMENT_API || "http://localhost:8090/api";
-    const AUTH = window.AUTH_API || "http://localhost:8100";
+<script>
+  // URLs RELATIVES : la page est servie par le WAF, donc /api et /auth passent par
+  // le WAF quel que soit le PC (localhost:8090 ou 192.168.137.1:8090). Pas de CORS.
+  const API="/api", AUTH="/auth";
+  const CLIENT="acc-client-001", MERCHANT="acc-merchant-001";
+  const hist=[];
+  const $=id=>document.getElementById(id);
+  const fmt=n=>Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2});
 
-    async function refreshStatus() {
-      const el = document.getElementById("status");
-      try {
-        const r = await fetch(API + "/health/deep");
-        if (r.ok) {
-          const j = await r.json();
-          el.className = "mb-4 text-sm px-3 py-2 rounded bg-emerald-100 text-emerald-800";
-          el.textContent = "État du service : disponible (" + j.accounts + " comptes)";
-        } else {
-          throw new Error("deep KO");
-        }
-      } catch (e) {
-        el.className = "mb-4 text-sm px-3 py-2 rounded bg-red-100 text-red-800";
-        el.textContent = "État du service : indisponible — incident en cours";
-      }
+  async function readResponse(r){
+    const ct=r.headers.get("content-type")||"";
+    if(ct.includes("application/json")){ try{return{status:r.status,ok:r.ok,body:await r.json()};}catch{return{status:r.status,ok:r.ok,body:{}};} }
+    return {status:r.status,ok:r.ok,body:{detail:"__html__"}};
+  }
+  async function refreshStatus(){
+    const pill=$("statusPill"), banner=$("banner");
+    try{
+      const r=await fetch(API+"/health/deep"); const {ok,body}=await readResponse(r); if(!ok) throw 0;
+      pill.className="pill ok"; pill.textContent="● Service disponible";
+      banner.className="banner ok"; banner.textContent="État du service : disponible — "+(body.accounts??"?")+" comptes actifs.";
+    }catch{
+      pill.className="pill ko"; pill.textContent="● Indisponible";
+      banner.className="banner ko"; banner.textContent="État du service : indisponible — incident en cours, reprise automatique en action…";
     }
-
-    async function pay() {
-      const out = document.getElementById("result");
-      out.textContent = "Traitement…";
-      try {
-        const login = await fetch(AUTH + "/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: "merchant", password: "merchant-demo" }),
-        });
-        const { access_token } = await login.json();
-        const tx = await fetch(API + "/transactions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + access_token,
-          },
-          body: JSON.stringify({
-            source: "acc-client-001",
-            destination: "acc-merchant-001",
-            amount: Number(document.getElementById("amount").value),
-          }),
-        });
-        const body = await tx.json();
-        out.textContent = JSON.stringify(body, null, 2);
-      } catch (e) {
-        out.textContent = "Échec : " + e.message + "\n(le service est peut-être en cours de remédiation)";
-      }
+  }
+  async function loadBalances(){
+    for(const [id,el] of [[CLIENT,"clientBal"],[MERCHANT,"merchantBal"]]){
+      try{ const r=await fetch(API+"/accounts/"+id); const {ok,body}=await readResponse(r); $(el).textContent=ok?fmt(body.balance):"—"; }
+      catch{ $(el).textContent="—"; }
     }
-
-    document.getElementById("pay").addEventListener("click", pay);
-    refreshStatus();
-    setInterval(refreshStatus, 4000);
-  </script>
+  }
+  function showResult(kind,title,detail){
+    const box=$("result"); const icon={success:"✓",warn:"!",error:"✕"}[kind];
+    box.style.display="block"; box.className="result "+kind;
+    box.innerHTML='<div class="rt"><span>'+icon+'</span>'+title+'</div>'+(detail?'<div class="rd">'+detail+'</div>':'');
+  }
+  function addHistory(amount,status){
+    const h=$("history"); hist.unshift({amount,status,t:new Date()});
+    h.innerHTML=hist.slice(0,5).map(it=>'<div class="hrow"><div><b>Paiement marchand</b><span class="htime">'+
+      it.t.toLocaleTimeString("fr-FR")+'</span></div><div><b>'+fmt(it.amount)+' €</b> &nbsp;<span class="badge">'+it.status+'</span></div></div>').join("");
+  }
+  async function pay(){
+    const btn=$("pay"), label=$("payLabel"); const amount=Number($("amount").value);
+    if(!(amount>0)){ showResult("warn","Montant invalide","Saisissez un montant supérieur à 0."); return; }
+    btn.disabled=true; label.textContent="Traitement…";
+    try{
+      const lr=await fetch(AUTH+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"merchant",password:"merchant-demo"})});
+      const login=await readResponse(lr); if(!login.ok) throw {k:"svc"};
+      const token=login.body.access_token;
+      const tr=await fetch(API+"/transactions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({source:CLIENT,destination:MERCHANT,amount})});
+      const tx=await readResponse(tr);
+      if(tx.status===201){ showResult("success","Paiement accepté — "+fmt(amount)+" €","Transaction "+tx.body.id+" · statut <b>"+tx.body.status+"</b>"); addHistory(amount,tx.body.status); loadBalances(); }
+      else if(tx.status===422){ showResult("warn","Solde insuffisant","Le compte client ne couvre pas ce montant."); }
+      else if(tx.status===404){ showResult("error","Compte introuvable","Vérifiez les identifiants de compte."); }
+      else if(tx.status===401){ showResult("error","Authentification refusée","Jeton invalide ou expiré."); }
+      else if(tx.status===403){ showResult("error","Requête bloquée par le WAF","La requête a été filtrée par le pare-feu applicatif."); }
+      else if(tx.status===429||tx.body.detail==="__html__"){ showResult("warn","Service momentanément indisponible","Trafic limité par le WAF ou reprise automatique en cours. Réessayez dans quelques secondes."); }
+      else { showResult("error","Échec du paiement","Code "+tx.status+"."); }
+    }catch(e){ showResult("warn","Service momentanément indisponible","Le service est peut-être en cours de remédiation. Réessayez dans quelques secondes."); }
+    finally{ btn.disabled=false; label.textContent="Payer le marchand"; }
+  }
+  document.querySelectorAll(".quick").forEach(b=>b.addEventListener("click",()=>{$("amount").value=b.dataset.amt;}));
+  $("pay").addEventListener("click",pay);
+  refreshStatus(); loadBalances();
+  setInterval(refreshStatus,4000); setInterval(loadBalances,6000);
+</script>
 </body>
 </html>
