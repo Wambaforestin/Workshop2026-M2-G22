@@ -49,7 +49,7 @@
       "title": "Journaux (Loki)",
       "gridPos": { "h": 9, "w": 24, "x": 0, "y": 16 },
       "datasource": { "type": "loki", "uid": "loki" },
-      "targets": [{ "expr": "{container=~\"payment-api|waf|remediation\"}", "refId": "A" }]
+      "targets": [{ "expr": "{container=~\".*(payment-api|waf|remediation|ml-detection).*\"}", "refId": "A" }]
     }
   ]
 }
