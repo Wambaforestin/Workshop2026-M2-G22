@@ -20,8 +20,12 @@
   .logo{height:40px;width:40px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
   .brand-name{font-weight:700;line-height:1.1}
   .brand-sub{font-size:12px;color:#c7d2fe}
+  .right{display:flex;align-items:center;gap:12px}
   .pill{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.18)}
   .pill.ok{background:#34d399;color:#064e3b} .pill.ko{background:#fb7185;color:#4c0519}
+  .who{font-size:12px;color:#e0e7ff;display:flex;align-items:center;gap:8px}
+  .logout{font-size:12px;font-weight:600;background:rgba(255,255,255,.18);color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .logout:hover{background:rgba(255,255,255,.28)}
   main{max-width:960px;margin:0 auto;padding:28px 24px}
   .banner{margin-bottom:22px;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:500;background:#e2e8f0;color:#475569;border:1px solid transparent}
   .banner.ok{background:var(--green-bg);color:#065f46;border-color:#a7f3d0}
@@ -42,14 +46,15 @@
   .arrow span{height:32px;width:32px;border-radius:999px;background:#ede9fe;color:#6d28d9;display:flex;align-items:center;justify-content:center;font-size:18px}
   label.l{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
   .inwrap{position:relative}
-  input#amount{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 32px 12px 16px;font-size:18px;font-weight:600;outline:none}
-  input#amount:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.2)}
+  input.in{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 16px;font-size:16px;outline:none}
+  input#amount{font-weight:600;font-size:18px;padding-right:32px}
+  input.in:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.2)}
   .eur{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#94a3b8}
   .quick-row{display:flex;gap:8px;margin-top:12px}
   .quick{flex:1;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;cursor:pointer}
   .quick:hover{background:#f8fafc}
-  .pay{margin-top:16px;width:100%;background:var(--indigo);color:#fff;font-weight:600;font-size:15px;border:none;padding:13px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-  .pay:hover{background:var(--indigo-d)} .pay:disabled{opacity:.6;cursor:default}
+  .btn{margin-top:16px;width:100%;background:var(--indigo);color:#fff;font-weight:600;font-size:15px;border:none;padding:13px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn:hover{background:var(--indigo-d)} .btn:disabled{opacity:.6;cursor:default}
   .result{margin-top:16px;border-radius:12px;border:1px solid;padding:12px 16px;font-size:14px;animation:fade .3s ease both}
   .result.success{background:var(--green-bg);border-color:#a7f3d0;color:#065f46}
   .result.warn{background:var(--amber-bg);border-color:#fde68a;color:#92400e}
@@ -64,8 +69,17 @@
   .badge{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:#d1fae5;color:#047857}
   .empty{padding:16px 20px;font-size:14px;color:#94a3b8}
   footer{margin-top:28px;font-size:12px;color:#94a3b8;display:flex;flex-wrap:wrap;gap:4px 16px}
+  /* --- Login --- */
+  .login-wrap{max-width:420px;margin:48px auto;padding:0 24px}
+  .login-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 30px rgba(15,23,42,.08);padding:28px}
+  .login-card h1{font-size:20px;margin:0 0 4px}
+  .login-card .sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .field{margin-bottom:14px}
+  .hint{font-size:12px;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:10px 12px;margin-top:6px}
+  .hint b{color:#334155}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .ic{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .hidden{display:none}
 </style>
 </head>
 <body>
@@ -78,13 +92,38 @@
           <div class="brand-sub">Paiement sécurisé · démonstrateur Resilience-Alpha</div>
         </div>
       </div>
-      <div id="statusPill" class="pill">vérification…</div>
+      <div class="right">
+        <div id="statusPill" class="pill">vérification…</div>
+        <div id="whoBox" class="who hidden"><span id="whoName"></span><button id="logout" class="logout">Déconnexion</button></div>
+      </div>
     </div>
   </header>
 
-  <main>
-    <div id="banner" class="banner">État du service : vérification en cours…</div>
+  <!-- ÉCRAN DE CONNEXION -->
+  <div id="loginView" class="login-wrap">
+    <div class="login-card">
+      <h1>Connexion à votre espace</h1>
+      <div class="sub">Authentifiez-vous pour accéder au paiement.</div>
+      <div class="field">
+        <label class="l">Identifiant</label>
+        <input id="username" class="in" type="text" autocomplete="username" placeholder="client" />
+      </div>
+      <div class="field">
+        <label class="l">Mot de passe</label>
+        <input id="password" class="in" type="password" autocomplete="current-password" placeholder="••••••••" />
+      </div>
+      <button id="loginBtn" class="btn">
+        <svg width="16" height="16" class="ic" stroke="#fff"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        <span id="loginLabel">Se connecter</span>
+      </button>
+      <div id="loginResult" class="result hidden"></div>
+      <div class="hint">Comptes de démonstration : <b>client</b> / <b>client-demo</b> &nbsp;·&nbsp; <b>merchant</b> / <b>merchant-demo</b></div>
+    </div>
+  </div>
 
+  <!-- ESPACE PAIEMENT (après connexion) -->
+  <main id="appView" class="hidden">
+    <div id="banner" class="banner">État du service : vérification en cours…</div>
     <div class="grid">
       <section>
         <h2 class="sec">Comptes</h2>
@@ -110,7 +149,7 @@
         <div class="card">
           <label class="l">Montant (EUR fictifs)</label>
           <div class="inwrap">
-            <input id="amount" type="number" value="42.00" step="0.01" min="0.01" />
+            <input id="amount" class="in" type="number" value="42.00" step="0.01" min="0.01" />
             <span class="eur">€</span>
           </div>
           <div class="quick-row">
@@ -118,11 +157,11 @@
             <button class="quick" data-amt="42.00">42,00</button>
             <button class="quick" data-amt="150.00">150,00</button>
           </div>
-          <button id="pay" class="pay">
+          <button id="pay" class="btn">
             <svg width="16" height="16" class="ic" stroke="#fff"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <span id="payLabel">Payer le marchand</span>
           </button>
-          <div id="result" class="result" style="display:none"></div>
+          <div id="result" class="result hidden"></div>
         </div>
         <p class="note">🔒 Transaction acheminée via le WAF · <b>aucune donnée bancaire réelle</b>.<br>Flux : vitrine → WAF → API → base.</p>
       </section>
@@ -145,6 +184,7 @@
   // le WAF quel que soit le PC (localhost:8090 ou 192.168.137.1:8090). Pas de CORS.
   const API="/api", AUTH="/auth";
   const CLIENT="acc-client-001", MERCHANT="acc-merchant-001";
+  let TOKEN=null, USER=null;
   const hist=[];
   const $=id=>document.getElementById(id);
   const fmt=n=>Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -154,15 +194,53 @@
     if(ct.includes("application/json")){ try{return{status:r.status,ok:r.ok,body:await r.json()};}catch{return{status:r.status,ok:r.ok,body:{}};} }
     return {status:r.status,ok:r.ok,body:{detail:"__html__"}};
   }
+  function showBox(box,kind,title,detail){
+    const icon={success:"✓",warn:"!",error:"✕"}[kind];
+    box.classList.remove("hidden"); box.className="result "+kind;
+    box.innerHTML='<div class="rt"><span>'+icon+'</span>'+title+'</div>'+(detail?'<div class="rd">'+detail+'</div>':'');
+  }
+
+  // ---------- Authentification ----------
+  async function login(){
+    const btn=$("loginBtn"), label=$("loginLabel");
+    const u=$("username").value.trim(), p=$("password").value;
+    if(!u||!p){ showBox($("loginResult"),"warn","Champs requis","Saisissez identifiant et mot de passe."); return; }
+    btn.disabled=true; label.textContent="Connexion…";
+    try{
+      const r=await fetch(AUTH+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});
+      const res=await readResponse(r);
+      if(res.status===200){ TOKEN=res.body.access_token; USER=u; enterApp(); }
+      else if(res.status===401){ showBox($("loginResult"),"error","Identifiants invalides","Vérifiez l'identifiant et le mot de passe."); }
+      else if(res.body.detail==="__html__"){ showBox($("loginResult"),"warn","Service momentanément indisponible","Reprise automatique en cours, réessayez dans quelques secondes."); }
+      else { showBox($("loginResult"),"error","Connexion impossible","Code "+res.status+"."); }
+    }catch(e){ showBox($("loginResult"),"warn","Service d'authentification injoignable","Réessayez dans quelques secondes."); }
+    finally{ btn.disabled=false; label.textContent="Se connecter"; }
+  }
+  function enterApp(){
+    $("loginView").classList.add("hidden");
+    $("appView").classList.remove("hidden");
+    $("whoBox").classList.remove("hidden");
+    $("whoName").textContent="Connecté : "+USER;
+    loadBalances();
+  }
+  function logout(){
+    TOKEN=null; USER=null;
+    $("appView").classList.add("hidden");
+    $("whoBox").classList.add("hidden");
+    $("loginView").classList.remove("hidden");
+    $("password").value=""; $("loginResult").classList.add("hidden");
+  }
+
+  // ---------- Supervision & comptes ----------
   async function refreshStatus(){
     const pill=$("statusPill"), banner=$("banner");
     try{
       const r=await fetch(API+"/health/deep"); const {ok,body}=await readResponse(r); if(!ok) throw 0;
       pill.className="pill ok"; pill.textContent="● Service disponible";
-      banner.className="banner ok"; banner.textContent="État du service : disponible — "+(body.accounts??"?")+" comptes actifs.";
+      if(banner){ banner.className="banner ok"; banner.textContent="État du service : disponible — "+(body.accounts??"?")+" comptes actifs."; }
     }catch{
       pill.className="pill ko"; pill.textContent="● Indisponible";
-      banner.className="banner ko"; banner.textContent="État du service : indisponible — incident en cours, reprise automatique en action…";
+      if(banner){ banner.className="banner ko"; banner.textContent="État du service : indisponible — incident en cours, reprise automatique en action…"; }
     }
   }
   async function loadBalances(){
@@ -171,40 +249,41 @@
       catch{ $(el).textContent="—"; }
     }
   }
-  function showResult(kind,title,detail){
-    const box=$("result"); const icon={success:"✓",warn:"!",error:"✕"}[kind];
-    box.style.display="block"; box.className="result "+kind;
-    box.innerHTML='<div class="rt"><span>'+icon+'</span>'+title+'</div>'+(detail?'<div class="rd">'+detail+'</div>':'');
-  }
   function addHistory(amount,status){
     const h=$("history"); hist.unshift({amount,status,t:new Date()});
     h.innerHTML=hist.slice(0,5).map(it=>'<div class="hrow"><div><b>Paiement marchand</b><span class="htime">'+
       it.t.toLocaleTimeString("fr-FR")+'</span></div><div><b>'+fmt(it.amount)+' €</b> &nbsp;<span class="badge">'+it.status+'</span></div></div>').join("");
   }
+
+  // ---------- Paiement (utilise le jeton de connexion) ----------
   async function pay(){
+    if(!TOKEN){ logout(); return; }
     const btn=$("pay"), label=$("payLabel"); const amount=Number($("amount").value);
-    if(!(amount>0)){ showResult("warn","Montant invalide","Saisissez un montant supérieur à 0."); return; }
+    if(!(amount>0)){ showBox($("result"),"warn","Montant invalide","Saisissez un montant supérieur à 0."); return; }
     btn.disabled=true; label.textContent="Traitement…";
     try{
-      const lr=await fetch(AUTH+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"merchant",password:"merchant-demo"})});
-      const login=await readResponse(lr); if(!login.ok) throw {k:"svc"};
-      const token=login.body.access_token;
-      const tr=await fetch(API+"/transactions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({source:CLIENT,destination:MERCHANT,amount})});
+      const tr=await fetch(API+"/transactions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({source:CLIENT,destination:MERCHANT,amount})});
       const tx=await readResponse(tr);
-      if(tx.status===201){ showResult("success","Paiement accepté — "+fmt(amount)+" €","Transaction "+tx.body.id+" · statut <b>"+tx.body.status+"</b>"); addHistory(amount,tx.body.status); loadBalances(); }
-      else if(tx.status===422){ showResult("warn","Solde insuffisant","Le compte client ne couvre pas ce montant."); }
-      else if(tx.status===404){ showResult("error","Compte introuvable","Vérifiez les identifiants de compte."); }
-      else if(tx.status===401){ showResult("error","Authentification refusée","Jeton invalide ou expiré."); }
-      else if(tx.status===403){ showResult("error","Requête bloquée par le WAF","La requête a été filtrée par le pare-feu applicatif."); }
-      else if(tx.status===429||tx.body.detail==="__html__"){ showResult("warn","Service momentanément indisponible","Trafic limité par le WAF ou reprise automatique en cours. Réessayez dans quelques secondes."); }
-      else { showResult("error","Échec du paiement","Code "+tx.status+"."); }
-    }catch(e){ showResult("warn","Service momentanément indisponible","Le service est peut-être en cours de remédiation. Réessayez dans quelques secondes."); }
+      if(tx.status===201){ showBox($("result"),"success","Paiement accepté — "+fmt(amount)+" €","Transaction "+tx.body.id+" · statut <b>"+tx.body.status+"</b>"); addHistory(amount,tx.body.status); loadBalances(); }
+      else if(tx.status===422){ showBox($("result"),"warn","Solde insuffisant","Le compte client ne couvre pas ce montant."); }
+      else if(tx.status===404){ showBox($("result"),"error","Compte introuvable","Vérifiez les identifiants de compte."); }
+      else if(tx.status===401){ showBox($("result"),"warn","Session expirée","Reconnectez-vous pour continuer."); setTimeout(logout,1500); }
+      else if(tx.status===403){ showBox($("result"),"error","Requête bloquée par le WAF","La requête a été filtrée par le pare-feu applicatif."); }
+      else if(tx.status===429||tx.body.detail==="__html__"){ showBox($("result"),"warn","Service momentanément indisponible","Trafic limité par le WAF ou reprise automatique en cours. Réessayez dans quelques secondes."); }
+      else { showBox($("result"),"error","Échec du paiement","Code "+tx.status+"."); }
+    }catch(e){ showBox($("result"),"warn","Service momentanément indisponible","Le service est peut-être en cours de remédiation. Réessayez dans quelques secondes."); }
     finally{ btn.disabled=false; label.textContent="Payer le marchand"; }
   }
+
+  // ---------- Branchements ----------
+  $("loginBtn").addEventListener("click",login);
+  $("password").addEventListener("keydown",e=>{ if(e.key==="Enter") login(); });
+  $("logout").addEventListener("click",logout);
   document.querySelectorAll(".quick").forEach(b=>b.addEventListener("click",()=>{$("amount").value=b.dataset.amt;}));
   $("pay").addEventListener("click",pay);
-  refreshStatus(); loadBalances();
-  setInterval(refreshStatus,4000); setInterval(loadBalances,6000);
+
+  refreshStatus(); setInterval(refreshStatus,4000);
+  setInterval(()=>{ if(TOKEN) loadBalances(); },6000);
 </script>
 </body>
 </html>

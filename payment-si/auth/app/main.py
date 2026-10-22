@@ -35,6 +35,7 @@ TOKEN_TTL = int(os.getenv("TOKEN_TTL", "900"))  # 15 min
 USERS = {
     "operator": os.getenv("OP_PASSWORD", "operator-demo"),
     "merchant": os.getenv("MERCHANT_PASSWORD", "merchant-demo"),
+    "client": os.getenv("CLIENT_PASSWORD", "client-demo"),
 }
 
 LOGINS = Counter("auth_logins_total", "Tentatives de login", ["result"])
